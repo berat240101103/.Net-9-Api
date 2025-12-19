@@ -1,11 +1,22 @@
 bin/
 obj/
-.vs/
+out/
 
+.vs/
 *.user
 *.suo
 *.pdb
+*.idea/
 
-!Program.cs
-!*.cs
-!*.csproj
+*.db
+*.log
+
+*.DS_Store
+*.exe
+*.dll
+*.cache
+*.dbmdl
+*.bak
+*.ldf
+
+*.sln.DotSettings.user
