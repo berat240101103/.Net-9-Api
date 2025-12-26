@@ -1,16 +1,24 @@
 using System.Net;
 using System.Text.Json;
-using Api.Common;
+using Api.Common.Responses;
+using Microsoft.Extensions.Logging;
 
-namespace Api.Middleware;
+namespace Api.Common.Middleware;
 
 public class ExceptionMiddleware{
     private readonly RequestDelegate _next;
-    public ExceptionMiddleware(RequestDelegate next){_next = next;}
+    private readonly ILogger<ExceptionMiddleware> _logger;
+    public ExceptionMiddleware(
+        RequestDelegate next,
+        ILogger<ExceptionMiddleware> logger){
+        _next = next;
+        _logger = logger;}
     public async Task Invoke(HttpContext context){
-        try{await _next(context);}
+        try{
+            await _next(context);}
         catch (Exception ex){
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ContentType = "application/json";
-            var response = ApiResponse<string>.FailResponse(ex.Message);
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));}}}
+            _logger.LogError(ex, "Unhandled exception occurred");
+            var response = ApiResponse<string>.FailResponse("Internal server error");
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            await context.Response.WriteAsJsonAsync(response);
+        }}}
