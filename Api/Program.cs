@@ -27,10 +27,6 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapGet("/test-error", () =>
-{
-    throw new Exception("TEST LOGGING EXCEPTION");
-});
 app.MapGet("/categories", async (AppDbContext context) =>{
     var categories = await context.Categories
         .Select(c => new CategoryResponseDto{
