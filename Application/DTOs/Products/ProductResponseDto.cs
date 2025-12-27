@@ -4,4 +4,6 @@ namespace Application.DTOs.Products;
         public string Name { get; set; } = null!;
         public decimal Price { get; set; }
         public int CategoryId { get; set; }
-        public DateTime CreatedAt { get; set; }}
+        public string? CategoryName { get; set; } 
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }}

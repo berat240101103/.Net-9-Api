@@ -7,4 +7,5 @@ public interface IUserService{
     Task<UserResponseDto?> GetByIdAsync(int id);
     Task<UserResponseDto> CreateAsync(UserCreateDto dto);
     Task<bool> UpdateAsync(int id, UserUpdateDto dto);
-    Task<bool> DeleteAsync(int id);}
+    Task<bool> DeleteAsync(int id);
+    Task<bool> UpdateRoleAsync(int id, string role);}

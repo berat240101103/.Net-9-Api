@@ -24,4 +24,13 @@ namespace Infrastructure.Persistence{
                 .HasForeignKey(r => r.UserId);
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
-                .HasPrecision(18, 2);}}}
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<User>()
+                .Property(u => u.Role)
+                .HasDefaultValue("User");
+            var seedDate = new DateTime(2026, 1, 1);
+            modelBuilder.Entity<Category>().HasData(
+                new Category { Id = 1, Name = "Electronics", CreatedAt = seedDate, UpdatedAt = DateTime.UtcNow },
+                new Category { Id = 2, Name = "Books", CreatedAt = seedDate, UpdatedAt = DateTime.UtcNow });
+            modelBuilder.Entity<User>().HasData(
+                new User{Id = 1, Username = "admin", Email = "admin@test.com", Password = "123456", Role = "Admin", CreatedAt = seedDate});}}}

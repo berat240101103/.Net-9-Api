@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251226010524_InitialCreate")]
+    [Migration("20251227190936_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -49,6 +49,24 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Name = "Electronics",
+                            UpdatedAt = new DateTime(2025, 12, 27, 19, 9, 35, 723, DateTimeKind.Utc).AddTicks(2627)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Name = "Books",
+                            UpdatedAt = new DateTime(2025, 12, 27, 19, 9, 35, 723, DateTimeKind.Utc).AddTicks(2631)
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -143,6 +161,15 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("User");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -153,6 +180,18 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "admin@test.com",
+                            IsDeleted = false,
+                            Password = "123456",
+                            Role = "Admin",
+                            Username = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
