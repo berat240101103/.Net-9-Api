@@ -2,8 +2,9 @@ using System.Net;
 using System.Text.Json;
 using Api.Common.Responses;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 
-namespace Api.Common.Middleware;
+namespace Api.Common.Middlewares;
 
 public class ExceptionMiddleware{
     private readonly RequestDelegate _next;
@@ -16,29 +17,28 @@ public class ExceptionMiddleware{
     public async Task Invoke(HttpContext context){
         try{
             await _next(context);}
-        catch (Exception ex)
-{
-    _logger.LogError(ex, "Unhandled exception occurred");
-
-    int statusCode;
-    string message = ex.Message;
-    switch (ex){
-        case ArgumentException:              
-            statusCode = StatusCodes.Status400BadRequest;
-            message = "BadRequest"; 
-            break;
-        case KeyNotFoundException:          
-            statusCode = StatusCodes.Status404NotFound;
-            message = "Not Found"; 
-            break;
-        case InvalidOperationException:
-            statusCode = StatusCodes.Status409Conflict;
-            message = "Conflict"; 
-            break;
-        default:
-            statusCode = StatusCodes.Status500InternalServerError;
-            message = "Internal server error"; 
-            break;}
-    var response = ApiResponse<string>.FailResponse(message);
-    context.Response.StatusCode = statusCode;
-    await context.Response.WriteAsJsonAsync(response);}}}
+        catch (Exception ex){
+            _logger.LogError(ex, "Unhandled exception occurred");
+            int statusCode;
+            string message;
+            switch (ex){
+                case ValidationException ve:
+                    statusCode = StatusCodes.Status400BadRequest;
+                    message = ve.Message;
+                    break;
+                case ArgumentException ae:
+                    statusCode = StatusCodes.Status400BadRequest;
+                    message = ae.Message;
+                    break;
+                case KeyNotFoundException:
+                    statusCode = StatusCodes.Status404NotFound;
+                    message = "Not found";
+                    break;
+                default:
+                    statusCode = StatusCodes.Status500InternalServerError;
+                    message = "Internal server error";
+                    break;}
+            context.Response.StatusCode = statusCode;
+            context.Response.ContentType = "application/json";
+            var response = ApiResponse<string>.FailResponse(message);
+            await context.Response.WriteAsJsonAsync(response);}}}
