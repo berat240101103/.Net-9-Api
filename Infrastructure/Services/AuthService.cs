@@ -17,24 +17,27 @@ public class AuthService : IAuthService {
     public AuthService(AppDbContext context, IConfiguration config) {
         _context = context;
         _config = config;}
-    public async Task<string?> AuthenticateAsync(LoginDto login) {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == login.Username && u.Password == login.Password);
-        if (user == null) return null;
-        var jwtKey = _config["Jwt:Key"];
-        if (string.IsNullOrWhiteSpace(jwtKey))throw new InvalidOperationException("Jwt:Key is missing");
-        var tokenHandler = new JwtSecurityTokenHandler();
+    public async Task<string?> AuthenticateAsync(LoginDto login){
+    var user = await _context.Users.FirstOrDefaultAsync(u =>u.Username == login.Username && !u.IsDeleted);
+    if (user == null)
+        return null;
+    if (login.Password != user.Password)
+        return null;
+    var jwtKey = _config["Jwt:Key"]
+        ?? throw new InvalidOperationException("Jwt:Key is missing");
     var claims = new List<Claim>{
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new Claim(ClaimTypes.Name, user.Username),
         new Claim(ClaimTypes.Email, user.Email ?? ""),
-        new Claim(ClaimTypes.Role, user.Role!) };
+        new Claim(ClaimTypes.Role, user.Role ?? "")};
     var tokenDescriptor = new SecurityTokenDescriptor{
         Subject = new ClaimsIdentity(claims),
-        Expires = DateTime.UtcNow.AddMinutes(
-            int.Parse(_config["Jwt:DurationInMinutes"]!)),
+        Expires = DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:DurationInMinutes"]!)),
         Issuer = _config["Jwt:Issuer"],
         Audience = _config["Jwt:Audience"],
         SigningCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? string.Empty)),
-            SecurityAlgorithms.HmacSha256)};
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),SecurityAlgorithms.HmacSha256)};
+    var tokenHandler = new JwtSecurityTokenHandler();
     var token = tokenHandler.CreateToken(tokenDescriptor);
     return tokenHandler.WriteToken(token);}}
+
